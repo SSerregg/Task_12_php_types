@@ -53,23 +53,14 @@ function getPartsFromFullname ($fullName) {
 return array_combine($workpiece, $fromFullName);
 }
 
-print_r(getPartsFromFullname ($example_persons_array[0]['fullname']));
-echo '<br>';
-
 function getFullnameFromParts($surname = 'Иванов', $name = 'Иван', $patronomyc = 'Иванович') {
 return $surname.' '.$name.' '.$patronomyc;
 }
-
-print_r(getFullnameFromParts());
-echo '<br>';
 
 function getShortName($fullName) {
     $division = getPartsFromFullname ($fullName);
     return $division['name'].' '.mb_substr($division['surname'], 0, 1).'.';
 }
-
-print_r(getShortName($example_persons_array[0]['fullname']));
-echo '<br>';
 
 function getGenderFromName($fullName = 'Иванов Иван Иванович') {
     $partsName = getPartsFromFullname($fullName);
@@ -97,10 +88,6 @@ function getGenderFromName($fullName = 'Иванов Иван Иванович')
         return 0;
     }
 }
-print_r(getGenderFromName());
-echo '<br>';
-echo '<br>';
-echo '<br>';
 
 function getGenderDescription ($namesArray) {
 
@@ -127,24 +114,28 @@ $xxxCount = count(array_filter($namesArray, function($array){
 
 $fullArrayCount = count($namesArray);
 
-echo 'Гендарный состав аудитории:';
-echo '<br>';
-echo '-------------------------------------';
-echo '<br>';
+header("Content-Type: text/plain; charset=utf-8");
+
+echo 'Гендарный состав аудитории:'."\n";
+echo '-------------------------------------'."\n";
 echo 'Мужчины - ';
-print_r(round($maleCount/$fullArrayCount*100, 1));
-echo '%<br>';
+print_r(round($maleCount/$fullArrayCount*100, 1)."\n");
 echo 'Женщины - ';
-print_r(round($femaleCount/$fullArrayCount*100, 1));
-echo '%<br>';
+print_r(round($femaleCount/$fullArrayCount*100, 1)."\n");
 echo 'Не удалось определить - ';
-print_r(round($xxxCount/$fullArrayCount*100, 1));
-echo '%<br>';
+print_r(round($xxxCount/$fullArrayCount*100, 1)."\n\n\n");
 }
 
 getGenderDescription($example_persons_array);
-echo '<br>';
-echo '<br>';
+
+function opposite ($array, $gender) {
+    $chosen = $array[array_rand($array, 1)]['fullname'];
+    $genderChosen = getGenderFromName($chosen);
+    if ($gender == $genderChosen || $genderChosen==0){
+        opposite ($array, $gender);
+    }else{ echo getShortName($chosen);
+    } 
+    }
 
 function getPerfectPartner($surname, $name, $patronomyc, $originalArray) {
     $surname = mb_convert_case($surname, MB_CASE_TITLE_SIMPLE);
@@ -153,18 +144,9 @@ function getPerfectPartner($surname, $name, $patronomyc, $originalArray) {
     $fullName = getFullnameFromParts($surname, $name, $patronomyc);
     echo getShortName($fullName).' + ';
     $gender = getGenderFromName($fullName);
-    function opposite ($array, $gender) {
-    $chosen = $array[array_rand($array, 1)]['fullname'];
-    $genderChosen = getGenderFromName($chosen);
-    if ($gender == $genderChosen || $genderChosen==0){
-        opposite ($array, $gender);
-    }else{ echo getShortName($chosen).' =<br>';
-    } 
-    }
     opposite ($originalArray, $gender);
-    print json_decode('"\u2600"');
-    echo ' Идеально на '.rand(50, 100).'% ';
-    print json_decode('"\u2600"');
+    echo " =\n".' Идеально на '.rand(50, 100).'% ';
 }
-getPerfectPartner('Хохлов','Юра','Иванович',$example_persons_array);   
+
+getPerfectPartner('Хохлов','Юра','Иванович',$example_persons_array);
 ?>
